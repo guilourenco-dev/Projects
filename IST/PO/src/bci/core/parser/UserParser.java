@@ -1,6 +1,7 @@
-package bci.core;
+package bci.core.parser;
 
 import bci.core.exception.UnrecognizedEntryException;
+import bci.core.Library;
 
 
 public class UserParser implements EntryParser {

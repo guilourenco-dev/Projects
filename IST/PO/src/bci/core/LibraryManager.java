@@ -341,13 +341,4 @@ public List<String> consumeUserNotifications(int uid)
   var u = getUser(uid);
   return u.consumeNotifications().stream().map(Object::toString).toList();
 }
-
-public List<User> getUsersWithFineGreaterThan(int amount) {
-    return _library.getUsersWithFineGreaterThan(amount);
-}
-
-public User getUserWithHighestValue() {
-      return _library.getUserWithHighestValue();
-}
-
 }

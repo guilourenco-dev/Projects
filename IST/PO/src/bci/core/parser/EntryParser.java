@@ -1,4 +1,4 @@
-package bci.core;
+package bci.core.parser;
 
 import bci.core.exception.UnrecognizedEntryException;
 

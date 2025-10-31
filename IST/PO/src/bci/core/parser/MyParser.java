@@ -1,17 +1,18 @@
-package bci.core;
+package bci.core.parser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import bci.core.Library;
 
 import bci.core.exception.UnrecognizedEntryException;
 
-class MyParser {
+public class MyParser {
   private final List<EntryParser> parsers; 
 
   // Constructor
-  MyParser(Library lib) {
+  public MyParser(Library lib) {
     parsers = List.of(new UserParser(lib), new DvdParser(lib), new BookParser(lib));
   }
   
@@ -24,7 +25,7 @@ class MyParser {
    * @throws IOException if there is an IO erro while processing the text file
    * @throws UnrecognizedEntryException if some entry is not correct
    */
-  void parseFile(String filename) throws IOException, UnrecognizedEntryException {
+  public void parseFile(String filename) throws IOException, UnrecognizedEntryException {
     try (BufferedReader input = new BufferedReader(new FileReader(filename))) {
       String line;
       int ln = 0;

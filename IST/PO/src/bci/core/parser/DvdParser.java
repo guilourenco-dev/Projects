@@ -1,6 +1,9 @@
-package bci.core;
+package bci.core.parser;
 
 import bci.core.exception.UnrecognizedEntryException;
+import bci.core.Library;
+import bci.core.Creator;
+import bci.core.Category;
 
 public class DvdParser implements EntryParser{
     private final Library _library;

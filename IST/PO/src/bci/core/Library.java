@@ -5,6 +5,7 @@ import bci.core.rules.*;
 import bci.core.behaviors.UserBehavior;
 import bci.core.behaviors.Normal;
 import bci.core.behaviors.Cumpridor;
+import bci.core.parser.MyParser;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -30,8 +31,6 @@ public class Library implements Serializable {
 
   private final List<Rule> _rules;
   private int _lastFailedRuleId = 0;
-
-  private final List<Request> _allOpenRequests = new ArrayList<>();
 
   // Constructor
   public Library() {
@@ -110,7 +109,7 @@ void registerAvailabilityInterest(User u, Work w) { w.addInterested(u);}
  * @return the integer value of the parsed string
  * @throws UnrecognizedEntryException if the string is not a valid integer
  */
-int parseInt(String str, String field, String line) 
+public int parseInt(String str, String field, String line) 
 throws UnrecognizedEntryException {
     try { return Integer.parseInt(str.trim()); }
     catch (NumberFormatException e) {
@@ -439,41 +438,36 @@ public List<String> searchWorks(String term) {
  */
 int requestWork(User user, Work work) 
 throws BorrowingRuleFailedCoreException, WorkNotBorrowedByUserCoreException {
-        _lastFailedRuleId = 0; // Reset the last failed rule id
-        
-        if (_allOpenRequests.size() >= 12) {
-          throw new WorkNotBorrowedByUserCoreException(user.getUserId(), work.getWorkId()); 
-      }
+  _lastFailedRuleId = 0; // Reset the last failed rule
 
-        if (user.hasOverdue(_currentDate) || user.getUserFine() > 0) 
-          user.setActive(false);
+  if (user.hasOverdue(_currentDate) || user.getUserFine() > 0) 
+    user.setActive(false);
 
-        if (!user.isActive()) {
-          _lastFailedRuleId = 2;
+  if (!user.isActive()) {
+    _lastFailedRuleId = 2;
+    throw new BorrowingRuleFailedCoreException(user.getUserId(),
+      work.getWorkId(), 2);
+  }
+  for (Rule rule : _rules) {
+      if (!rule.check(work, user)) {
+          _lastFailedRuleId = rule.getId();
           throw new BorrowingRuleFailedCoreException(user.getUserId(),
-            work.getWorkId(), 2);
-        }
-        for (Rule rule : _rules) {
-            if (!rule.check(work, user)) {
-                _lastFailedRuleId = rule.getId();
-                throw new BorrowingRuleFailedCoreException(user.getUserId(),
-                work.getWorkId(), rule.getId());
-            }
-        }
-        int deadlineDays = calculateDeadline(work, user); 
-        int absoluteDeadline = _currentDate + deadlineDays;
+          work.getWorkId(), rule.getId());
+      }
+  }
+  int deadlineDays = calculateDeadline(work, user); 
+  int absoluteDeadline = _currentDate + deadlineDays;
 
-        Request newRequest = new Request(user, work);
-        newRequest.setDeadline(absoluteDeadline); 
-        
-        user.addRequest(newRequest); 
-        _allOpenRequests.add(newRequest);
-        work.decrementAvailableCopies(); 
-        work.clearInterestedFor(user);
-        setDirty(true);
-        
-        return absoluteDeadline;
-    }
+  Request newRequest = new Request(user, work);
+  newRequest.setDeadline(absoluteDeadline); 
+
+  user.addRequest(newRequest); 
+  work.decrementAvailableCopies(); 
+  work.clearInterestedFor(user);
+  setDirty(true);
+
+  return absoluteDeadline;
+  }
 
 
 /**
@@ -491,33 +485,32 @@ throws BorrowingRuleFailedCoreException, WorkNotBorrowedByUserCoreException {
  */
   int returnWork(User user, Work work) 
   throws WorkNotBorrowedByUserCoreException {
-      Request request = user.findOpenRequest(work); 
-      
-      if (request == null) {
-          throw new WorkNotBorrowedByUserCoreException(work.getWorkId(),
-          user.getUserId());
+    Request request = user.findOpenRequest(work); 
+    
+    if (request == null) {
+        throw new WorkNotBorrowedByUserCoreException(work.getWorkId(),
+        user.getUserId());
+    }
+    
+    // Return is successful. Remove request.
+    user.removeRequest(request); 
+    work.incrementAvailableCopies(); 
+
+    // Calculate fine
+    int daysLate = Math.max(0, _currentDate - request.getDeadline());
+    int fine = daysLate > 0 ? 5 * daysLate + user.getUserFine(): 0;
+    user.addFine(fine);
+    
+    if (fine > 0) {
+      user.setActive(false);
+      if (user.getUserBehavior() == Cumpridor.getInstance()) {
+        user.setUserBehavior(Normal.getInstance());
       }
-      
-      // Return is successful. Remove request.
-      user.removeRequest(request); 
-      work.incrementAvailableCopies(); 
-      _allOpenRequests.remove(request);
+    } 
 
-      // Calculate fine
-      int daysLate = Math.max(0, _currentDate - request.getDeadline());
-      int fine = daysLate > 0 ? 5 * daysLate + user.getUserFine(): 0;
-      user.addFine(fine);
-      
-      if (fine > 0) {
-        user.setActive(false);
-        if (user.getUserBehavior() == Cumpridor.getInstance()) {
-          user.setUserBehavior(Normal.getInstance());
-        }
-      } 
-
-      user.recordReturn(daysLate==0);
-      setDirty(true);
-      return fine;
+    user.recordReturn(daysLate==0);
+    setDirty(true);
+    return fine;
   }
   
 
@@ -544,59 +537,5 @@ throws BorrowingRuleFailedCoreException, WorkNotBorrowedByUserCoreException {
     if (wasZero && newAvail > 0) work.notifyAvailability();
     setDirty(true);
     return true;
-  }
-
-
-  
-  public List<User> getUsersWithFineGreaterThan(int amount) throws IllegalArgumentException {
-      if (amount < 0) {
-          throw new IllegalArgumentException("O valor da multa não pode ser negativo.");
-      }
-      
-      List<User> matchingUsers = new ArrayList<>();
-      for (User user : _userList) {
-          if (user.getUserFine() >= amount) {
-              matchingUsers.add(user);
-          }
-      }
-      Collections.sort(matchingUsers,
-       new Comparator<User>() {
-          @Override
-          public int compare(User u1, User u2) {
-              return Integer.compare(u2.getUserFine(), u1.getUserFine());
-          }
-      });
-      return matchingUsers; 
-  }
-
-
-  public User getUserWithHighestValue() {
-      User bestUserSoFar = null;
-      int maxValueSoFar = 0; 
-
-      for (User currentUser : _userList) {
-          int currentValue = currentUser.getTotalRequestedValue();
-          if (currentValue == 0) {
-              continue;
-          }
-          if (bestUserSoFar == null) {
-              bestUserSoFar = currentUser;
-              maxValueSoFar = currentValue;
-          } 
-          else if (currentValue > maxValueSoFar) {
-              bestUserSoFar = currentUser;
-              maxValueSoFar = currentValue;
-          } 
-          else if (currentValue == maxValueSoFar) {
-              
-              String currentName = currentUser.getUserName(); 
-              String bestName = bestUserSoFar.getUserName();  
-
-              if (currentName.length() < bestName.length()) {
-                  bestUserSoFar = currentUser;
-              }
-          }
-      }
-      return bestUserSoFar;
   }
 }
