@@ -27,6 +27,8 @@ This repository contains all my programming projects — both from university an
 - Java
 - Git & GitHub
 
+
 ---
 
+> Commercial use is allowed under the MIT License, but please notify me before using this software commercially.
 > This repository serves as a portfolio of my growth and experiments in computer engineering.
