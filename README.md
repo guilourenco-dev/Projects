@@ -25,4 +25,4 @@ This repository contains all my programming projects — both from university an
 ---
 
 
-> This repo serves as a portfolio of my growth and experiments in computer engineering.
+> This repository serves as a portfolio of my growth and experiments in computer engineering.
