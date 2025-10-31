@@ -15,7 +15,7 @@ This repository contains all my programming projects — both from university an
 - **Vaccine Management System:** C program implementing a system for managing vaccines and inoculations. Supports adding vaccine batches, applying doses to users, listing vaccines, and advancing simulated time. Handles errors and memory constraints. All source and header files are in the `src` folder.
 
 ### Object-Oriented Programming (OOP) - Java
-- **Library Management System:** Java program implementing a library management application. Tracks books, DVDs, creators, and users. Supports adding/removing items, managing inventory, handling user statuses (active/suspended), and processing borrow/return requests according to rules. Includes notifications for item availability, automatic handling of overdue fines, and persistence via file storage. All source files are in the `src` folder.
+- **Library Management System:** Java program implementing a library management application. Tracks books, DVDs, creators, and users. Supports adding/removing items, managing inventory, handling user statuses (active/suspended), and processing borrow/return requests according to rules. Includes notifications for item availability, automatic handling of overdue fines, and persistence via file storage. All source files are in the src folder. The `pt` package contains the user-interface components (Swing, forms, commands, prompts, messages), `bci.app` manages the main application flow, and `bci.core` implements the core domain logic and rules of the library system.
 
 ## Personal Projects
 *WORK IN PROGRESS*
