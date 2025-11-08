@@ -4,7 +4,7 @@
  * @author [ist1114538 - Guilherme Lourenço]
  */
 #include "project.h"
-#include "aux.h"
+#include "utils.h"
 #include "comandos.h"
 
 /**
