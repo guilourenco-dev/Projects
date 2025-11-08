@@ -3,7 +3,7 @@
  * @brief Este ficheiro contém a função principal do programa de vacinação.
  * @author [ist1114538 - Guilherme Lourenço]
  */
-#include "aux.h"
+#include "utils.h"
 #include "comandos.h"
 
 /**
