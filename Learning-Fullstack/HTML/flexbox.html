@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flexbox Practice</title>
+    <style>
+      span {
+        font-family: Arial;
+        padding: 0px;
+      }
+
+      .flex-box {
+        display: flex;
+        flex-direction: column;
+        row-gap: 14px;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        width: 250px;
+        padding: 5px 10px;
+      }
+
+      .badge {
+        background-color: rgb(53, 137, 255);
+        color: white;
+        border-radius: 15px;
+        padding: 3px 12px;
+      }
+
+      .home-info, .notifications-info, .messages-info {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+
+
+
+
+      .flex-box1 {
+        display: flex;
+        flex-direction: row;
+        column-gap: 40px;
+        justify-content: space-between;
+        background-color: rgb(127, 104, 205);
+        color: white;
+        padding: 10px 15px;
+        padding-right: 9px;
+        width: 600px;
+        align-items: center;
+      }
+
+      .home1 {
+        font-weight: 600;
+      }
+
+      .search {
+        border-radius: 30px;
+        border: none;
+        width: 325px;
+        padding: 7px 15px;
+        font-size: 13px;
+      }
+
+      .button {
+        border: 0.8px solid white;
+        background-color: rgb(127, 104, 205);
+        color: white;
+        padding: 7px 15px;
+        border-radius: 1.5px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="flex-box">
+      <div class="home-info">
+        <span class="home">Home</span>
+        <span class="badge">14</span>
+      </div>
+      <div>
+        <div class="notifications-info">
+          <span class="notifications">Notifications</span>
+          <span class="badge">3</span>
+        </div>
+      </div>
+      <div>
+        <div class="messages-info">
+          <span class="messages">Messages</span>
+          <span class="badge">5</span>
+        </div>
+      </div>
+    </div>
+
+
+    <p style="padding-bottom: 20px;"></p>
+
+
+    <div class="flex-box1">
+      <span class="home1">Home</span>
+      <input type="text" class="search" placeholder="Search">
+      <button class="button">Download</button>
+    </div>
+  </body>
+</html>
